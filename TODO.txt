@@ -1,0 +1,12 @@
+TODO
+
+
+### SIGNALS
+	1. implement syswait
+	3. debug signals
+	4. !!! a process can signal itself and can run sysstop, syswait on itself if requested
+	5. !!! initialize a handler for signal 9 to sysstop in every process except idle
+	6. write tests and descriptions in testing.txt
+
+### DRIVERS
+	1. start implementing device drivers

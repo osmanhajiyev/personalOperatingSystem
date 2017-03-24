@@ -1,0 +1,261 @@
+
+
+                                 .      .   
+                                 _\/  \/_
+                                  _\/\/_
+                              _\_\_\/\/_/_/_
+                               / /_/\/\_\ \
+                                  _/\/\_
+                                  /\  /\ 
+                                 '      '
+
+
+                   ####################################
+                   #  Awesome Testing Documentation   #
+                   ####################################
+
+
+For each test case explain what is being tested, how the test is structured, and how the output demonstrates what is being tested. You may want to annotate the output but be very careful to distinguish between annotations and actual output. It is acceptable to remove output that is superfluous as long as that is indicated.
+
+
+
+### TEST 1
+
+### Test showing prioritization of signals:                       PASSED
+    Test showing working syssighandler():                         PASSED
+    Test showing invalid handler address and signal registration: PASSED
+
+    In this test we create a root process, which then creates a child process.
+    Child process initializes multiple handlers for different signal numbers
+    and then root process starts signalling in the order of the lowest
+    priority signal to highest. Child then processes them higher priority to
+    lower priority.
+    Together with prioritization we show that the call to syssighandler()
+    properly installs signal handlers. Lines that correspond to signal
+    handler installation in the output provided below:
+    
+    [...]
+    Signal 4 registration: SUCCESS. Result: 0
+    Signal 5 registration: SUCCESS. Result: 0
+    [...]
+
+    Also in this test we are showing how a process cannot register invalid
+    signal and a handler with invalid address. Lines that correspond to
+    invalid signal and handler installation in the output provided below:
+
+    [...]
+    Invalid handler address: PASSED. Result: -2
+    Invalid signal number: PASSED. Result: -1
+    [...]
+
+
+    ### TEST OUTPUT:
+
+        created idle process.
+        create inited
+        sig_test MASTER 66: up. CHILD: up with PID: 67
+        sig_test CHILD: 67: up
+        Signal 2 registration: SUCCESS. Result: 0
+        Signal 3 registration: SUCCESS. Result: 0
+        Signal 4 registration: SUCCESS. Result: 0
+        Signal 5 registration: SUCCESS. Result: 0
+        Signal 6 registration: SUCCESS. Result: 0
+        Signal 7 registration: SUCCESS. Result: 0
+        Invalid handler address: PASSED. Result: -2
+        Invalid signal number: PASSED. Result: -1
+        DELIVERED signal 2: PASSED. Result: 0
+        DELIVERED signal 3: PASSED. Result: 0
+        DELIVERED signal 4: PASSED. Result: 0
+        signal 5 handler
+        DELIVERED signal 5: PASSED. Result: 0
+        DELIVERED signal 6: PASSED. Result: 0
+        DELIVERED signal 7: PASSED. Result: 0
+        signal 7 handler
+        signal 6 handler
+        signal 4 handler
+        signal 3 handler
+        RUNNING AN AWESOME HANDLER YUPPYYY!!       <-- Handler for signal 2 :)
+        sigtest CHILD: 67: dying
+        sig_test MASTER 66: Test done, dying...
+
+
+
+### TEST 2
+
+### syskill() tests: PASSED
+    
+    First test shows how a process signals itself with signal 9 (dies after
+    receiving it). Line "Sysstop called.. Bye!" is printed from dispatcher:
+
+    ### TEST OUTPUT:
+
+        sig_test MASTER 66: up. CHILD: up with PID: 67
+        Signal to self: 9.
+        Sysstop called.. Bye!           <-- Master dies before sending signals
+        sig_test CHILD: 67: up                                        to child
+        Signal 2 registration: SUCCESS. Result: 0
+        Signal 3 registration: SUCCESS. Result: 0
+        Signal 4 registration: SUCCESS. Result: 0
+        Signal 5 registration: SUCCESS. Result: 0
+        Signal 6 registration: SUCCESS. Result: 0
+        Signal 7 registration: SUCCESS. Result: 0
+        Invalid handler address: PASSED. Result: -2
+        Invalid signal number: PASSED. Result: -1
+        sigtest CHILD: 67: dying
+        Sysstop called.. Bye!
+
+    Second test is dedicated to sending unknown and unregistered signals to a
+    child process. Partial output provided, showing -651 return code, followed
+    by valid code delivery:
+
+    ### TEST OUTPUT:
+
+        [...]
+        UNREGISTERED signal: PASSED. Result: -651
+        UNKNOWN signal: PASSED. Result: -651
+        DELIVERED signal 2: PASSED. Result: 0
+        signal 3 handler
+        DELIVERED signal 3: PASSED. Result: 0
+        [...]
+
+
+
+### TEST 3
+
+### syssigwait() test case: PASSED
+
+    In this test we are creating 3 processes. Master process creates a child
+    process, which then creates another process and calls syswait() on its
+    parent. The third process calls syswait() on its parent too. Then they all
+    die one after the other. Sad story... :(
+
+    ### TEST OUTPUT:
+
+        create inited
+        sig_test MASTER 66: up. CHILD: up with PID: 67
+        sig_wait CHILD2: 67: up
+        sig_wait CHILD: 68: up
+        sig_wait MASTER: dying
+        sig_wait CHILD2: parent died! result: 0
+        sig_wait CHILD2: dying
+        sig_wait CHILD: parent died! result: 0
+        sig_wait CHILD: dying
+
+
+
+### TEST 4
+
+### sysopen() with invalid arguments: PASSED
+    
+    In this test we are doing a sysopen() with valid argument, which returns a
+    file descriptor, followed by a sysopen() with invalid device number (100).
+    Some lines were omitted from the output for clarity.
+
+    ### TEST OUTPUT:
+
+        [...]
+        create inited
+        Keyboard test up. Opened keyboard, FD: 0
+        [...]
+        Trying to open device 100, FD: -1
+        [...]
+
+
+
+### TEST 5
+
+### syswrite() with invalid file descriptor: PASSED
+    
+    In this test we are doing a syswrite to a previously opened keyboard and
+    get an error in response. We cannot write to a keyboard.
+    Some lines were omitted from the output for clarity.
+
+    ### TEST OUTPUT:
+
+        [...]
+        Keyboard test up. Opened keyboard, FD: 0
+        disp Write called
+        di_write Called
+        disp Write done
+        Trying to wite to keyboard. Result: -1
+        [...]
+
+
+
+### TEST 6
+
+### sysioctl() test for invalid commands: PASSED
+    
+    In this test we are sending command "100" to the keyboard and get the
+    return code for error (-1) back. Then this command is followed by a valid
+    command that enables echoing. Successful result is 0.
+    Some lines were omitted from the output for clarity.
+
+    ### TEST OUTPUT
+
+        [...]
+        di_ioctl Called
+        Trying to send command "100" to kbd. Result: -1
+        [...]
+        di_ioctl Called
+        IOCTL Echoing result: 0
+        [...]
+
+
+
+### TEST 7 PASSED!
+### sysread() when there are more characters buffered in kernel than the read
+    requests
+
+	Example: Assume bufflen is 2 or sysread() is called 2 times with buffer 1, however the kernel keyboard buffer is full with 4 characters in it. Then when we call sysread() there will remain 4-n characters in keyboard buffer (n is size of the total buffer length of all sysreads()). 
+	Can call sysread() two times with buffer 1 and then check then print the number of characters that are left and the result in our code is 4-2= 2.
+
+
+
+
+
+### TEST 8
+
+### Two test cases for scenarios not covered here or in the test program:
+    PASSED
+    
+    We included extensive testing for signals (see TEST 1). (All passed)
+
+    Another test is for sysclose. In this test we are doing two consecutive
+    sysclose calls. One is on the currently open device and another is on the
+    device that does not exist.
+
+    ### TEST OUTPUT
+
+        [...]
+        Closing unknown device. Result: -1      <-- Failed!
+        Closing keyboard. Result: 0             <-- Success!
+        Dying...                                <-- reached the end of code
+
+
+
+                    _...
+              o_.-"`    `\
+       .--.  _ `'-._.-'""-;     _
+     .'    \`_\_  {_.-a"a-}  _ / \
+   _/     .-'  '. {c-._o_.){\|`  |
+  (@`-._ /       \{    ^  } \\ _/
+   `~\  '-._      /'.     }  \}  .-.
+     |>:<   '-.__/   '._,} \_/  / ())  
+     |     >:<   `'---. ____'-.|(`"`
+     \            >:<  \\_\\_\ | ;
+      \                 \\-{}-\/  \
+       \                 '._\\'   /)
+        '.                       /(
+          `-._ _____ _ _____ __.'\ \
+            / \     / \     / \   \ \ 
+     jgs _.'/^\'._.'/^\'._.'/^\'.__) \
+     ,=='  `---`   '---'   '---'      )
+     `"""""""""""""""""""""""""""""""`
+
+
+     HAPPY HOLIDAYS!!!
+
+
+
+
