@@ -1,4 +1,6 @@
-This directory contains the source code for the Xeros operating system
+Built by: Osman Hajiyev, Anton Uralev with the guidance from Professor Donald Acton
+
+This directory contains the heavily modified source code for the Xeros operating system
 which is a desicated version of the Xinu OS.
 
 To build a Xeros image, type make in this directory. If you want to
